@@ -354,7 +354,7 @@
         "latex-output": "latex",
         "latex-paper-type": "a4",
         "latex-pdf": true,
-        "latex-ps": false,
+        "latex-ps": true,
         "latex-source-code": false,
         "latex-stylesheets": [
             ""

@@ -1,58 +1,64 @@
 
+/*! \todo Create master application class with mainWindow and primaryMonitor members */
+
+#ifndef STDLIB_IOSTREAM_INCLUDED
+#define STDLIB_IOSTREAM_INCLUDED
 #include <iostream>
+#endif
 
-#include <GLFW/glfw3.h>
+#ifndef STDLIB_STRING_INCLUDED
+#define STDLIB_STRING_INCLUDED
+#include <string>
+#endif
 
+#ifndef FREECIV_WINDOW_H_
+#include "window.h"
+#endif
 
-/** Function:			PrintGLFWVersion()
- *
- *  Description:		This function is inline because 'glfwGetVersionString()' must be
- *                      called from the main thread.
- *
- *  Return Type:		void
- */
+#ifndef FREECIV_DEBUG_H_
+#include "debug.h"
+#endif
 
-inline void PrintGLFWVersion() {
-	std::cout << "GLFW Version: " << glfwGetVersionString() << '\n';
-}
+using namespace FreeCiv;
+
+//static void key_callback(Window window, int key, int scancode, int action, int mods) {
+//	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+//		glfwSetWindowShouldClose(window, GLFW_TRUE);
+//}
 
 
 int main()
 {
-	//std::cout << "GLFW Version: " << glfwGetVersionString() << '\n';
-	PrintGLFWVersion();
+	// Establish GLFW error callback function
+	glfwSetErrorCallback(ErrorCallbackFunction);
 
-	const auto NullVar = GLFW_NOT_INITIALIZED;
+	InitializeGLFW();
 
-	GLFWwindow *window;
+	Monitor primaryMonitor = glfwGetPrimaryMonitor();
+	const auto primaryMonitorName = glfwGetMonitorName(primaryMonitor);
 
-	// Initialize the library
-	if (!glfwInit()) {
-		return -1;
-	}
+	//std::cout << "Primary Monitor Name: " << primaryMonitorName << '\n';
+	PrintVar("Primary Monitor Name", primaryMonitorName);
 
 	// Create a windowed mode window and its OpenGL context
-	window = glfwCreateWindow(640, 480, "Hello, World!", NULL, NULL);
-	if (!window) {
-		glfwTerminate();
-		return -1;
-	}
+	const auto mainWindow = newWindow(640, 480, "Hello, World!", NULL, NULL);
+	
+	// Bind the key callback defined above to the main window
+	glfwSetKeyCallback(mainWindow, Callbacks::EscapeKeyCloseWindow);
 
 	// Make the window's context current
-	glfwMakeContextCurrent(window);
+	glfwMakeContextCurrent(mainWindow);
 
 	// Loop until the user closes the window
-	while (!glfwWindowShouldClose(window)) {
-		// Render here
+	while (keepWindowOpen(mainWindow)) {
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		// Swap front and back buffers
-		glfwSwapBuffers(window);
-
-		// Poll for and process events
+		glfwSwapBuffers(mainWindow);
 		glfwPollEvents();
 	}
 
-	glfwTerminate();
-	return 0;
+	CloseWindow(mainWindow);
+	ExitGLFW();
+
+	return EXIT_SUCCESS;
 }
