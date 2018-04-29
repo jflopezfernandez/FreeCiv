@@ -1,7 +1,10 @@
 
 /*! \todo Create master application class with mainWindow and primaryMonitor members */
 
+#ifndef WINDOWS_HEADER_INCLUDED
+#define WINDOWS_HEADER_INCLUDED
 #include <Windows.h>
+#endif
 
 #ifndef STDLIB_IOSTREAM_INCLUDED
 #define STDLIB_IOSTREAM_INCLUDED
@@ -25,14 +28,6 @@ const auto APPLICATION_NAME = "FreeCiv";
 
 using namespace FreeCiv;
 
-//static void key_callback(Window window, int key, int scancode, int action, int mods) {
-//	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-//		glfwSetWindowShouldClose(window, GLFW_TRUE);
-//}
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow *window);
-
 int main()
 {
 	GLFW::Initialize();
@@ -41,10 +36,12 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	Window mainWindow = newWindow(DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT, "FreeCiv", NULL, NULL);
+	Window mainWindow = newWindow(WINDOW::DEFAULT_SCREEN_WIDTH, WINDOW::DEFAULT_SCREEN_HEIGHT, "FreeCiv", NULL, NULL);
 
 	glfwMakeContextCurrent(mainWindow);
-	glfwSetFramebufferSizeCallback(mainWindow, framebuffer_size_callback);
+	// ERROR: WINDOW::MakeContextCurrent(mainWindow);
+	WINDOW::SetFrameBufferCallback(mainWindow, WINDOW::FramebufferSizeCallback);
+	WINDOW::SetMouseButtonCallback(mainWindow, WINDOW::MouseButtonCallback);
 
 	// glad: load all OpenGL function pointers
 	// ---------------------------------------
@@ -54,37 +51,58 @@ int main()
 		return -1;
 	}
 
-	// render loop
-	// -----------
-	//while (!glfwWindowShouldClose(window)) {
-	while (keepWindowOpen(mainWindow)) {
-		// input
-		// -----
-		processInput(mainWindow);
+	// ----- ----- Triangle Code ----- -----
+	float vertices[] = {
+		-0.5f, -0.5f, 0.0f,
+		 0.5f, -0.5f, 0.0f,
+		 0.0f,  0.5f, 0.0f
+	};
 
-		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-		// -------------------------------------------------------------------------------
+	unsigned int vertexBufferObject = 0;
+	glGenBuffers(1, &vertexBufferObject);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+
+	const auto vertexShaderSource = "#version 330 core\nlayout (location = 0) in vec3 aPos;\n\nvoid main()\n{\n\tgl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n}\n";
+
+	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+	glCompileShader(vertexShader);
+
+	int success = 0;
+	char infoLog[512] = { 0 };
+
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+	glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+	
+	if (!success) {
+		std::cerr << "ERROR: Shader-Vertex Compilation Failed:\n\t" << infoLog << '\n';
+	} else {
+		std::clog << "Successfully compiled shader: \n\t";
+
+		if (!strlen(infoLog)) {
+			std::clog << "<Error Log Empty>\n";
+		} else {
+			std::clog << infoLog << '\n';
+		}
+	}
+
+	while (keepWindowOpen(mainWindow)) {
+		WINDOW::ProcessInput(mainWindow);
+
+		// Rendering Commands
+		glClearColor(1.f, 1.f, 1.f, 1.f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
 		glfwSwapBuffers(mainWindow);
 		glfwPollEvents();
 	}
 	
-	CloseWindow(mainWindow);
+	WINDOW::Close(mainWindow);
 	GLFW::Exit();
 
 	return EXIT_SUCCESS;
-}
-
-// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-// ---------------------------------------------------------------------------------------------------------
-void processInput(GLFWwindow *window) {
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, true);
-}
-
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
-void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-	// make sure the viewport matches the new window dimensions; note that width and 
-	// height will be significantly larger than specified on retina displays.
-	glViewport(0, 0, width, height);
 }

@@ -1,5 +1,7 @@
 
+#ifndef FREECIV_WINDOW_H_
 #include "window.h"
+#endif
 
 
 namespace FreeCiv {
@@ -21,5 +23,13 @@ namespace FreeCiv {
 
 	bool keepWindowOpen(Window window) noexcept {
 		return (!glfwWindowShouldClose(window));
+	}
+
+	namespace WINDOW {
+		void Close(Window window) noexcept {
+			if (!window) { return; }
+
+			glfwDestroyWindow(window);
+		}
 	}
 }
