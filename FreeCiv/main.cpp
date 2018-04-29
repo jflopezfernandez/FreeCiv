@@ -1,6 +1,8 @@
 
 /*! \todo Create master application class with mainWindow and primaryMonitor members */
 
+#include <Windows.h>
+
 #ifndef STDLIB_IOSTREAM_INCLUDED
 #define STDLIB_IOSTREAM_INCLUDED
 #include <iostream>
@@ -19,6 +21,8 @@
 #include "debug.h"
 #endif
 
+const auto APPLICATION_NAME = "FreeCiv";
+
 using namespace FreeCiv;
 
 //static void key_callback(Window window, int key, int scancode, int action, int mods) {
@@ -26,39 +30,61 @@ using namespace FreeCiv;
 //		glfwSetWindowShouldClose(window, GLFW_TRUE);
 //}
 
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void processInput(GLFWwindow *window);
 
 int main()
 {
-	// Establish GLFW error callback function
-	glfwSetErrorCallback(ErrorCallbackFunction);
+	GLFW::Initialize();
 
-	InitializeGLFW();
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	Monitor primaryMonitor = glfwGetPrimaryMonitor();
-	const auto primaryMonitorName = glfwGetMonitorName(primaryMonitor);
+	Window mainWindow = newWindow(DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT, "FreeCiv", NULL, NULL);
 
-	//std::cout << "Primary Monitor Name: " << primaryMonitorName << '\n';
-	PrintVar("Primary Monitor Name", primaryMonitorName);
-
-	// Create a windowed mode window and its OpenGL context
-	const auto mainWindow = newWindow(640, 480, "Hello, World!", NULL, NULL);
-	
-	// Bind the key callback defined above to the main window
-	glfwSetKeyCallback(mainWindow, Callbacks::EscapeKeyCloseWindow);
-
-	// Make the window's context current
 	glfwMakeContextCurrent(mainWindow);
+	glfwSetFramebufferSizeCallback(mainWindow, framebuffer_size_callback);
 
-	// Loop until the user closes the window
+	// glad: load all OpenGL function pointers
+	// ---------------------------------------
+	if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
+		std::cout << "Failed to initialize GLAD" << std::endl;
+		system("PAUSE");
+		return -1;
+	}
+
+	// render loop
+	// -----------
+	//while (!glfwWindowShouldClose(window)) {
 	while (keepWindowOpen(mainWindow)) {
-		glClear(GL_COLOR_BUFFER_BIT);
+		// input
+		// -----
+		processInput(mainWindow);
 
+		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+		// -------------------------------------------------------------------------------
 		glfwSwapBuffers(mainWindow);
 		glfwPollEvents();
 	}
-
+	
 	CloseWindow(mainWindow);
-	ExitGLFW();
+	GLFW::Exit();
 
 	return EXIT_SUCCESS;
+}
+
+// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
+// ---------------------------------------------------------------------------------------------------------
+void processInput(GLFWwindow *window) {
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, true);
+}
+
+// glfw: whenever the window size changed (by OS or user resize) this callback function executes
+// ---------------------------------------------------------------------------------------------
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+	// make sure the viewport matches the new window dimensions; note that width and 
+	// height will be significantly larger than specified on retina displays.
+	glViewport(0, 0, width, height);
 }

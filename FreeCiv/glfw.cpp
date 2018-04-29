@@ -4,13 +4,15 @@
 #endif
 
 namespace FreeCiv {
-	void InitializeGLFW() noexcept {
-		if (!glfwInit()) {
-			exit(EXIT_FAILURE);
+	namespace GLFW {
+		void Initialize() noexcept {
+			if (!glfwInit()) {
+				exit(EXIT_FAILURE);
+			}
 		}
-	}
 
-	void ExitGLFW() noexcept {
-		glfwTerminate();
+		void Exit() noexcept {
+			glfwTerminate();
+		}
 	}
 }

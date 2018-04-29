@@ -84,7 +84,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Libs\GLFW\3.2.1\MSVC 17 x64_86\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Libs\GLFW\3.2.1\MSVC 17 x64_86\include;C:\Users\jflop\source\repos\FreeCiv\FreeCiv\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -114,7 +114,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Libs\GLFW\3.2.1\MSVC 17 x64_86\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Libs\GLFW\3.2.1\MSVC 17 x64_86\include;C:\Users\jflop\source\repos\FreeCiv\FreeCiv\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <UndefinePreprocessorDefinitions>DEBUG</UndefinePreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -126,6 +126,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="error.cpp" />
+    <ClCompile Include="glad.c" />
     <ClCompile Include="glfw.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="monitor.cpp" />
